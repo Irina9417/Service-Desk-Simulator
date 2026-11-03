@@ -1,0 +1,553 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Service Desk Simulator | ООО «Про.Софт»</title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <section id="screen-start" class="screen active">
+    <div class="start-card">
+      <h1>Service Desk Simulator</h1>
+      <h2>ООО «Про.Софт»</h2>
+      <p>Добро пожаловать в Service Desk Simulator</p>
+      <p>На 1 уровне вы - инженер технической поддержки. Ваша задача - разобрать папку потока обращений. Читайте первичные сообщения, при необходимости задавайте уточняющие вопросы заказчикам и заполняйте карточки в соответствии с правилами работы Service Desk.</p>
+      <button id="btn-start" class="btn primary">Начать работу</button>
+    </div>
+  </section>
+
+  <section id="screen-queue" class="screen">
+    <header class="topbar">
+      <div class="topbar-title">Папка потока обращений (Уровень 1)</div>
+      <div class="topbar-info">Зарегистрировано: <span id="q-done">0</span> / 11</div>
+      <div class="topbar-actions">
+        <button id="btn-org-list-queue" class="btn">Справочник организаций</button>
+        <button id="btn-emp-list-queue" class="btn">Справочник сотрудников</button>
+        <button id="btn-kb-queue" class="btn">База знаний</button>
+        <button id="btn-finish" class="btn" disabled>Завершить уровень</button>
+      </div>
+    </header>
+    <main class="queue-list" id="queue-list"></main>
+  </section>
+
+  <section id="screen-work" class="screen">
+    <header class="topbar">
+      <div class="topbar-title" id="work-title">Рабочее место</div>
+      <div class="topbar-info">Обращение: <span id="work-num">-</span></div>
+      <div class="topbar-actions">
+        <button id="btn-org-list-work" class="btn">Справочник организаций</button>
+        <button id="btn-emp-list-work" class="btn">Справочник сотрудников</button>
+        <button id="btn-kb" class="btn">База знаний</button>
+        <button id="btn-back-queue" class="btn">К папке потока</button>
+      </div>
+    </header>
+    <main class="work-wrap">
+      <div class="work-grid">
+        <section class="panel">
+          <header class="panel-header">
+            <div class="panel-title">Входящее обращение</div>
+          </header>
+          <div class="panel-body">
+            <div class="kv">
+              <div class="kv-row"><span class="kv-key">Организация</span><span class="kv-val" id="frm-org"></span></div>
+              <div class="kv-row"><span class="kv-key">Контакт</span><span class="kv-val" id="frm-cont"></span></div>
+              <div class="kv-row"><span class="kv-key">Канал связи</span><span class="kv-val" id="frm-chan"></span></div>
+              <div class="kv-row"><span class="kv-key">Заголовок</span><span class="kv-val" id="frm-title"></span></div>
+            </div>
+            
+            <div class="text-block">
+              <div class="text-block-title">Текст обращения</div>
+              <div class="text-block-content" id="frm-text"></div>
+            </div>
+            
+            <div id="wrap-clarify-btn" style="margin-top: 10px;">
+              <button id="btn-clarify" class="btn primary" style="width: 100%; border: 1px dashed #93c5fd; background: #eff6ff; color: #1e40af;">Написать заказчику и уточнить детали</button>
+            </div>
+
+            <div id="clarify-block" style="display: none;">
+              <div class="text-block" style="border-color: #c7d2fe; background-color: #eef2ff;">
+                <div class="text-block-title" style="background-color: #c7d2fe; color: #3730a3; font-weight: 600;">Ответ заказчика</div>
+                <div class="text-block-content" id="frm-clarify-text" style="color: #1e3a8a; font-style: italic;"></div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section class="panel">
+          <header class="panel-header">
+            <div class="panel-title">Карточка обращения</div>
+          </header>
+          <div class="panel-body">
+            <div class="form-grid">
+              <label class="form-field">
+                <span class="form-label">Организация</span>
+                <select id="card-org"></select>
+              </label>
+              <label class="form-field">
+                <span class="form-label">Контактное лицо</span>
+                <select id="card-cont"></select>
+              </label>
+              <label class="form-field">
+                <span class="form-label">Канал связи</span>
+                <select id="card-chan"></select>
+              </label>
+              <label class="form-field">
+                <span class="form-label">Заголовок</span>
+                <input id="card-title" type="text">
+              </label>
+              <label class="form-field full">
+                <span class="form-label">Описание ситуации</span>
+                <textarea id="card-desc"></textarea>
+              </label>
+              <label class="form-field">
+                <span class="form-label">Тип обращения *</span>
+                <select id="card-type"></select>
+              </label>
+              <label class="form-field">
+                <span class="form-label">Продукт *</span>
+                <select id="card-prod"></select>
+              </label>
+              <label class="form-field">
+                <span class="form-label">Категория *</span>
+                <select id="card-cat"></select>
+              </label>
+              <label class="form-field">
+                <span class="form-label">Подкатегория *</span>
+                <select id="card-sub"></select>
+              </label>
+              <label class="form-field full">
+                <span class="form-label">Продукты и версии</span>
+                <div id="ver-list" class="ver-list"></div>
+                <div class="ver-add-wrap">
+                  <div class="ver-add-title">Добавить продукт</div>
+                  <div class="ver-add-row">
+                    <select id="sel-add-prod"></select>
+                    <button type="button" id="btn-add-prod" class="btn">Добавить продукт</button>
+                  </div>
+                </div>
+              </label>
+              <label class="form-field">
+                <span class="form-label">Важность *</span>
+                <select id="card-imp"></select>
+              </label>
+              <label class="form-field">
+                <span class="form-label">Срочность *</span>
+                <select id="card-urg"></select>
+              </label>
+            </div>
+
+            <div id="l2-assignment-block" style="display: none; margin-top: 16px; border: 1px solid var(--border); border-radius: 8px; padding: 16px; background: #f8fafc;">
+              <div class="form-grid">
+                <label class="form-field full">
+                  <span class="form-label" style="font-weight: 600; color: var(--primary);">Распределение обращения (Уровень 2)</span>
+                </label>
+                <label class="form-field full">
+                  <span class="form-label">Назначить ответственного *</span>
+                  <select id="card-assignee-l2"></select>
+                </label>
+                <label class="form-field full">
+                  <span class="form-label">Комментарий / Задача для исполнителя *</span>
+                  <select id="card-comment-l2"></select>
+                </label>
+              </div>
+              <div class="prio-hint" style="margin-top: 12px; background: #fffbeb; border-color: #fde68a; color: #92400e; font-size: 12px;">
+                <b>Внимание:</b> Проверьте статус сотрудника (Справочник сотрудников). Если вопрос касается SLA или договоров - эскалируйте менеджеру. Также учитывайте загруженность сотрудников (сколько обращений уже в работе).
+              </div>
+            </div>
+
+            <div id="prio-hint" class="prio-hint" style="display: none;">
+              <b>Внимание:</b> По умолчанию для этого типа обращения установлен <b>средний</b> приоритет (средняя важность и срочность). Вы можете изменить его вручную, если заказчик явно указал на срочность или высокую важность. Подробнее в Базе знаний: <span class="kb-link" onclick="goToKbTab('Важность и срочность. Матрица приоритета')">«Матрица приоритета»</span>.
+            </div>
+
+            <div class="ro-grid">
+              <div class="ro-row"><span class="ro-key">Номер</span><span class="ro-val" id="ro-num">-</span></div>
+              <div class="ro-row"><span class="ro-key">Ответственный</span><span class="ro-val" id="ro-resp">текущий регистратор</span></div>
+              <div class="ro-row"><span class="ro-key">Состояние обращения</span><span class="ro-val">регистрация</span></div>
+              <div class="ro-row"><span class="ro-key">Код закрытия</span><span class="ro-val"></span></div>
+            </div>
+
+            <div class="auto-box" id="auto-box">
+              <div class="auto-title">Автоматический расчёт</div>
+              <div class="auto-grid">
+                <div class="auto-item"><div class="auto-l">Приоритет</div><div class="auto-v" id="auto-prio">-</div></div>
+                <div class="auto-item"><div class="auto-l">Срок реакции</div><div class="auto-v" id="auto-react">-</div></div>
+                <div class="auto-item"><div class="auto-l">Время решения</div><div class="auto-v" id="auto-sol">-</div></div>
+              </div>
+            </div>
+            
+          </div>
+          <footer class="panel-footer">
+            <button id="btn-cancel" class="btn">Отменить</button>
+            <button id="btn-reg" class="btn primary" disabled>Зарегистрировать</button>
+            <button id="btn-assign-l2" class="btn primary" style="display: none;" disabled>Изменить ответственного</button>
+          </footer>
+        </section>
+      </div>
+    </main>
+  </section>
+
+  <section id="screen-queue-l2" class="screen">
+    <header class="topbar">
+      <div class="topbar-title">Папка потока (Уровень 2 - Тимлид)</div>
+      <div class="topbar-info">Распределено: <span id="q-done-l2">0</span> / 8</div>
+      <div class="topbar-actions">
+        <button id="btn-org-list-queue-l2" class="btn">Справочник организаций</button>
+        <button id="btn-emp-list-queue-l2" class="btn">Справочник сотрудников</button>
+        <button id="btn-kb-queue-l2" class="btn">База знаний</button>
+        <button id="btn-finish-l2" class="btn" disabled>Завершить уровень 2</button>
+      </div>
+    </header>
+    <main class="queue-list" id="queue-list-l2"></main>
+  </section>
+
+  <section id="screen-queue-l3" class="screen">
+    <header class="topbar">
+      <div class="topbar-title">Рабочая очередь инженера (Уровень 3 - Инженер 2 линии)</div>
+      <div class="topbar-info">Решено: <span id="q-done-l3">0</span> / <span id="q-total-l3">10</span></div>
+      <div class="topbar-actions">
+        <button id="btn-org-list-queue-l3" class="btn">Справочник организаций</button>
+        <button id="btn-emp-list-queue-l3" class="btn">Справочник сотрудников</button>
+        <button id="btn-kb-queue-l3" class="btn">База знаний</button>
+        <button id="btn-problems-l3" class="btn">Проблемы</button>
+        <button id="btn-finish-l3" class="btn" disabled>Завершить уровень 3</button>
+      </div>
+    </header>
+    <main class="queue-list" id="queue-list-l3"></main>
+  </section>
+
+  <section id="screen-work-l3" class="screen">
+    <header class="topbar">
+      <div class="topbar-title" id="work-title-l3">Рабочее место инженера</div>
+      <div class="topbar-info">Обращение: <span id="work-num-l3">-</span></div>
+      <div class="topbar-actions">
+        <button id="btn-org-list-work-l3" class="btn">Справочник организаций</button>
+        <button id="btn-emp-list-work-l3" class="btn">Справочник сотрудников</button>
+        <button id="btn-kb-work-l3" class="btn">База знаний</button>
+        <button id="btn-problems-work-l3" class="btn">Проблемы</button>
+        <button id="btn-back-queue-l3" class="btn">К папке потока</button>
+      </div>
+    </header>
+    <main class="work-wrap">
+      <div class="work-grid">
+        <section class="panel">
+          <header class="panel-header">
+            <div class="panel-title">Входящее обращение</div>
+          </header>
+          <div class="panel-body">
+            <div class="kv">
+              <div class="kv-row"><span class="kv-key">Организация</span><span class="kv-val" id="l3-frm-org"></span></div>
+              <div class="kv-row"><span class="kv-key">Контакт</span><span class="kv-val" id="l3-frm-cont"></span></div>
+              <div class="kv-row"><span class="kv-key">Канал связи</span><span class="kv-val" id="l3-frm-chan"></span></div>
+              <div class="kv-row"><span class="kv-key">Тип / Приоритет</span><span class="kv-val" id="l3-frm-prio"></span></div>
+            </div>
+
+            <div class="text-block">
+              <div class="text-block-title">Заголовок</div>
+              <div class="text-block-content" id="l3-frm-title" style="font-weight: 600;"></div>
+            </div>
+
+            <div class="text-block">
+              <div class="text-block-title">Текст обращения</div>
+              <div class="text-block-content" id="l3-frm-text"></div>
+            </div>
+
+            <div id="l3-clarify-block" style="display: none;">
+              <div class="text-block" style="border-color: #c7d2fe; background-color: #eef2ff;">
+                <div class="text-block-title" style="background-color: #c7d2fe; color: #3730a3; font-weight: 600;">Ответ заказчика</div>
+                <div class="text-block-content" id="l3-clarify-text" style="color: #1e3a8a; font-style: italic;"></div>
+              </div>
+            </div>
+
+            <div id="l3-dup-block" style="display: none; background: #fffbeb; border: 1px solid #fde68a; border-radius: 8px; padding: 12px; font-size: 13px;">
+              <b>Обратите внимание:</b> похоже, это повтор уже разобранных симптомов. Проверьте, не было ли подобного ранее, и есть ли Known Error с обходным решением.
+            </div>
+
+            <div id="l3-dup-link" style="display: none; margin-top: 8px; font-size: 13px;">
+              <span class="kv-key">Связано с:</span>
+              <select id="l3-dup-of" style="min-width: 220px;"></select>
+            </div>
+
+            <div id="l3-dup-hint" style="display: none; margin-top: 8px; font-size: 12px; color: var(--warn);">
+              ⚠ Обращение похоже на повтор. Укажите, с каким обращением оно связано (кнопка выше), и примените обходное решение из Known Error.
+            </div>
+
+            <button id="btn-l3-clarify" class="btn primary" style="display: none; width: 100%; border: 1px dashed #93c5fd; background: #eff6ff; color: #1e40af;">Запросить уточняющую информацию у заказчика</button>
+          </div>
+        </section>
+
+        <section class="panel">
+          <header class="panel-header">
+            <div class="panel-title">Диагностика</div>
+          </header>
+          <div class="panel-body">
+            <div id="l3-diag-tabs" class="l3-diag-tabs"></div>
+            <div class="text-block">
+              <div class="text-block-title" id="l3-diag-title">Выберите инструмент диагностики</div>
+              <div class="text-block-content" id="l3-diag-content" style="font-family: Consolas, Menlo, monospace; font-size: 12.5px; white-space: pre-wrap; line-height: 1.55;"></div>
+            </div>
+            <div class="prio-hint" style="font-size: 12.5px;">
+              <b>Подсказка:</b> лог говорит <i>что</i> сломалось, конфигурация - <i>что изменилось</i>, лицензия - <i>куплено ли вообще</i>. Сравнивайте «как сейчас» и «как было до сбоя».
+            </div>
+          </div>
+        </section>
+
+        <section class="panel">
+          <header class="panel-header">
+            <div class="panel-title">Карточка решения</div>
+          </header>
+          <div class="panel-body">
+            <div class="ro-grid" style="margin-bottom: 12px;">
+              <div class="ro-row"><span class="ro-key">Номер обращения</span><span class="ro-val" id="l3-ro-num">-</span></div>
+              <div class="ro-row"><span class="ro-key">Продукт / версия</span><span class="ro-val" id="l3-ro-prod">-</span></div>
+              <div class="ro-row"><span class="ro-key">Срочность / Важность</span><span class="ro-val" id="l3-ro-imp">-</span></div>
+              <div class="ro-row"><span class="ro-key">SLA: реакция / решение</span><span class="ro-val" id="l3-ro-sla">-</span></div>
+            </div>
+
+            <div class="form-grid">
+              <label class="form-field full">
+                <span class="form-label">Корневая причина (своими словами) *</span>
+                <textarea id="l3-root" placeholder="Опишите первопричину: что именно и почему сломалось"></textarea>
+              </label>
+              <label class="form-field full">
+                <span class="form-label">Обходное решение (workaround) *</span>
+                <select id="l3-workaround"></select>
+              </label>
+              <label class="form-field full">
+                <span class="form-label">Радикальное решение *</span>
+                <select id="l3-radical"></select>
+              </label>
+              <label class="form-field full">
+                <span class="form-label">Исход обращения *</span>
+                <select id="l3-outcome">
+                  <option value="resolved">Решено (инцидент закрыт, проблемы нет)</option>
+                  <option value="new_problem">Новая проблема (требуется завести Problem Record)</option>
+                  <option value="known_error">Известная ошибка (привязка к существующей проблеме, ждем фикс)</option>
+                  <option value="fixed_problem">Исправленная проблема (привязка к закрытой проблеме, рецидив)</option>
+                </select>
+              </label>
+
+              <!-- Новое поле для привязки к существующей проблеме (для known_error и fixed_problem) -->
+              <label class="form-field full" id="l3-problem-link-block" style="display: none;">
+                <span class="form-label">Связанная проблема *</span>
+                <select id="l3-problem-link"></select>
+                <div style="font-size: 12px; color: var(--sub); margin-top: 4px;">
+                  <i>Подсказка: если проблема помечена как «Исправлена», а клиент снова столкнулся с ошибкой - выбирайте исход «Исправленная проблема».</i>
+                </div>
+              </label>
+
+            <div id="l3-problem-block" style="display: none; margin-top: 16px; border: 1px solid #c7d2fe; border-radius: 8px; padding: 16px; background: #f5f3ff;">
+              <div style="font-weight: 600; color: #4c1d95; margin-bottom: 12px;">Управление проблемами: Problem Record *</div>
+              <div class="form-grid">
+                <label class="form-field full">
+                  <span class="form-label">Связанные инциденты (все обращения с этой первопричиной)</span>
+                  <div id="l3-prob-incidents" class="l3-prob-incidents"></div>
+                </label>
+                <label class="form-field">
+                  <span class="form-label">Влияние *</span>
+                  <select id="l3-prob-impact">
+                    <option value="высокое">высокое - затронуты бизнес-процессы нескольких организаций / отделов</option>
+                    <option value="среднее">среднее - затронут процесс одной организации / отдела</option>
+                    <option value="низкое">низкое - точечное, есть лёгкая обходка</option>
+                  </select>
+                </label>
+                <label class="form-field">
+                  <span class="form-label">Вероятность повторения *</span>
+                  <select id="l3-prob-prob">
+                    <option value="высокая">высокая - будет повторяться, пока не выйдет фикс</option>
+                    <option value="средняя">средняя - будет повторяться при определённых условиях</option>
+                    <option value="низкая">низкая</option>
+                  </select>
+                </label>
+                <label class="form-field">
+                  <span class="form-label">Владелец проблемы *</span>
+                  <select id="l3-prob-owner"></select>
+                </label>
+                <label class="form-field">
+                  <span class="form-label">Метод расследования *</span>
+                  <select id="l3-prob-method"></select>
+                </label>
+                <label class="form-field full">
+                  <span class="form-label">RFC - запрос на изменение для разработчиков *</span>
+                  <textarea id="l3-prob-rfc" placeholder="Что именно исправить в продукте и какое обходное решение действует до фикса"></textarea>
+                </label>
+              </div>
+              <div class="prio-hint" style="margin-top: 12px; background: #fffbeb; border-color: #fde68a; color: #92400e; font-size: 12px;">
+                <b>Внимание:</b> Problem Record нужен, когда одна первопричина объясняет несколько инцидентов (у этой или других организаций). Владелец - кто ведёт расследование (обычно L3 или разработчик). RFC должен описывать конкретное изменение в продукте.
+              </div>
+            </div>
+
+            <div id="l3-submit-hint" class="prio-hint" style="display: none; margin-top: 12px; background: #fffbeb; border-color: #fde68a; color: #92400e; font-size: 12.5px;"></div>
+          </div>
+          <footer class="panel-footer">
+            <button id="btn-l3-cancel" class="btn">Отменить</button>
+            <button id="btn-l3-submit" class="btn primary" disabled>Закрыть обращение</button>
+          </footer>
+        </section>
+      </div>
+    </main>
+  </section>
+
+  <section id="screen-res" class="screen">
+    <header class="topbar">
+      <div class="topbar-title" id="res-title">Итоги работы</div>
+      <div class="topbar-actions">
+        <button id="btn-next-level-1" class="btn primary" style="display: none;">Перейти на уровень 2</button>
+        <button id="btn-next-level-2" class="btn primary" style="display: none;">Перейти на уровень 3</button>
+        <button id="btn-res-restart" class="btn">На главную</button>
+      </div>
+    </header>
+    <main class="res-wrap">
+      <div class="res-table-wrap">
+        <table class="res-table" id="res-table">
+          <thead><tr><th style="width: 40%;">Форма обращения</th><th style="width: 15%;">Результат</th><th style="width: 45%;">Детали карточки (ваш выбор / правильно)</th></tr></thead>
+          <tbody></tbody>
+        </table>
+      </div>
+    </main>
+  </section>
+
+  <!-- Модалки -->
+  <div id="modal-l2-intro" class="modal">
+    <div class="modal-dialog" style="width: min(600px, 96vw);">
+      <div class="modal-header">
+        <div class="modal-title">Уровень 2: Распределение и эскалации</div>
+        <button class="modal-close" data-close="modal-l2-intro">×</button>
+      </div>
+      <div class="modal-body" style="font-size: 14px; line-height: 1.6;">
+        <p>Добро пожаловать на позицию <b>Тимлида команды Бета</b>!</p>
+        <p>Теперь вы не просто регистрируете обращения, а <b>распределяете их между сотрудниками</b>. Ваша задача - правильно определить, кто должен заниматься каждым обращением, и какую задачу ему поставить.</p>
+        
+        <p style="margin-top: 12px;"><b>Что нужно делать:</b></p>
+        <ul style="padding-left: 20px;">
+          <li>Изучите обращение.</li>
+          <li>Проверьте заполнение карточки (важность, срочность, подкатегории). Если что-то не так - исправьте!</li>
+          <li>Откройте <b>«Справочник сотрудников»</b>, чтобы узнать их специализацию, статус (кто-то может быть в отпуске!) и загруженность (сколько обращений уже в работе).</li>
+          <li>Выберите <b>Ответственного</b> из выпадающего списка.</li>
+          <li>Выберите <b>Комментарий / Задачу</b> для исполнителя (например, запросить анализ, взять в работу или связаться с заказчиком по вопросам сроков).</li>
+          <li>Нажмите <b>«Изменить ответственного»</b>, чтобы сохранить решение.</li>
+        </ul>
+        
+        <p style="margin-top: 12px; color: var(--sub); font-size: 13px;">
+          <i>Подсказка:</i> Если вопрос касается сроков, договоров или эскалации (например, просят продлить SLA), его нужно передавать <b>менеджеру</b>, а не инженерам техподдержки. Если нужен глубокий анализ кода - <b>3-й линии (L3)</b>.
+        </p>
+      </div>
+      <div class="modal-footer">
+        <button id="btn-start-l2-work" class="btn primary">Приступить к работе</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="modal-l3-intro" class="modal">
+    <div class="modal-dialog" style="width: min(640px, 96vw);">
+      <div class="modal-header">
+        <div class="modal-title">Уровень 3: Инженер 2-й линии</div>
+        <button class="modal-close" data-close="modal-l3-intro">×</button>
+      </div>
+      <div class="modal-body" style="font-size: 14px; line-height: 1.6;">
+        <p>Добро пожаловать на позицию <b>Инженера 2-й линии технической поддержки</b>! Теперь вы сами <b>решаете обращения</b>: ищете причину сбоя и восстанавливаете работу для заказчика.</p>
+        <p style="margin-top: 12px;"><b>Как работать:</b></p>
+        <ul style="padding-left: 20px;">
+          <li>Прочтите обращение. Если информации не хватает - нажмите <b>«Запросить уточняющую информацию»</b>: заказчик ответит.</li>
+          <li>Проведите <b>диагностику</b>: логи, конфигурация, лицензионный ключ (средняя панель).</li>
+          <li>В карточке решения заполните: <b>корневую причину</b> (своими словами), <b>обходное решение</b>, <b>радикальное решение</b> и <b>исход</b>.</li>
+          <li>Если исход - <b>Known Error</b>, появится блок <b>«Управление проблемами»</b>: опишите Problem Record, оцените влияние и вероятность, назначьте владельца, выберите метод расследования и напишите RFC.</li>
+          <li>Нажмите <b>«Закрыть обращение»</b>.</li>
+        </ul>
+        <p style="margin-top: 12px; color: var(--sub); font-size: 13px;">
+          <i>Подсказка:</i> Повторяющиеся инциденты с одной первопричиной - это <b>проблема (Problem)</b>, а не «опять баг». Не все обращения - инциденты: бывают запросы на обслуживание и консультации. Детали - в <b>Базе знаний</b>.
+        </p>
+      </div>
+      <div class="modal-footer">
+        <button id="btn-start-l3-work" class="btn primary">Приступить к работе</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="modal-problems" class="modal">
+    <div class="modal-dialog large">
+      <div class="modal-header"><div class="modal-title">Реестр проблем (Problem Records)</div><button class="modal-close" data-close="modal-problems">×</button></div>
+      <div class="modal-body">
+        <div id="problems-body" style="display: grid; gap: 12px;"></div>
+      </div>
+      <div class="modal-footer"><button class="btn" data-close="modal-problems">Закрыть</button></div>
+    </div>
+  </div>
+
+  <div id="modal-org-list" class="modal">
+    <div class="modal-dialog large">
+      <div class="modal-header"><div class="modal-title">Справочник организаций</div><button class="modal-close" data-close="modal-org-list">×</button></div>
+      <div class="modal-body">
+        <table class="res-table">
+          <thead><tr><th>Наименование</th><th>Описание</th><th>Купленные продукты и версии</th><th>Действия</th></tr></thead>
+          <tbody id="org-list-body"></tbody>
+        </table>
+      </div>
+      <div class="modal-footer"><button class="btn" data-close="modal-org-list">Закрыть</button></div>
+    </div>
+  </div>
+
+  <div id="modal-emp-list" class="modal">
+    <div class="modal-dialog large">
+      <div class="modal-header"><div class="modal-title">Справочник сотрудников</div><button class="modal-close" data-close="modal-emp-list">×</button></div>
+      <div class="modal-body">
+        <table class="res-table">
+          <thead><tr><th>ФИО</th><th>Роль</th><th>Специализация</th><th>В работе</th><th>Статус</th></tr></thead>
+          <tbody id="emp-list-body"></tbody>
+        </table>
+      </div>
+      <div class="modal-footer"><button class="btn" data-close="modal-emp-list">Закрыть</button></div>
+    </div>
+  </div>
+
+  <div id="modal-contacts" class="modal">
+    <div class="modal-dialog">
+      <div class="modal-header"><div class="modal-title">Контактные лица: <span id="contacts-org-name"></span></div><button class="modal-close" data-close="modal-contacts">×</button></div>
+      <div class="modal-body">
+        <table class="res-table"><thead><tr><th>ФИО</th><th>Должность</th></tr></thead><tbody id="contacts-list-body"></tbody></table>
+      </div>
+      <div class="modal-footer"><button class="btn" data-close="modal-contacts">Закрыть</button></div>
+    </div>
+  </div>
+
+  <div id="modal-kb" class="modal">
+    <div class="modal-dialog large">
+      <div class="modal-header"><div class="modal-title">База знаний</div><button class="modal-close" data-close="modal-kb">×</button></div>
+      <div class="modal-body"><div class="kb-layout"><aside class="kb-menu" id="kb-menu"></aside><section class="kb-content" id="kb-content"></section></div></div>
+      <div class="modal-footer"><button class="btn" data-close="modal-kb">Закрыть</button></div>
+    </div>
+  </div>
+
+  <div id="modal-reg" class="modal">
+    <div class="modal-dialog small">
+      <div class="modal-body center"><div class="ok-text">Обращение <span id="reg-ok-id"></span> зарегистрировано</div></div>
+      <div class="modal-footer"><button id="btn-reg-ok" class="btn primary">Ок</button></div>
+    </div>
+  </div>
+
+  <div id="modal-assign" class="modal">
+    <div class="modal-dialog small">
+      <div class="modal-body center"><div class="ok-text">Ответственный по обращению <span id="assign-ok-id"></span> изменен</div></div>
+      <div class="modal-footer"><button id="btn-assign-ok" class="btn primary">Ок</button></div>
+    </div>
+  </div>
+
+  <div id="modal-autotest" class="modal">
+    <div class="modal-dialog xlarge">
+      <div class="modal-header"><div class="modal-title">Результаты автотестирования</div><button class="modal-close" data-close="modal-autotest">×</button></div>
+      <div class="modal-body">
+        <table class="res-table">
+          <thead><tr><th style="width: 40%;">Форма обращения</th><th style="width: 10%;">Тест 1</th><th style="width: 10%;">Тест 2</th><th style="width: 40%;">Детальный разбор (все поля)</th></tr></thead>
+          <tbody id="autotest-report-body"></tbody>
+        </table>
+      </div>
+      <div class="modal-footer"><button class="btn" data-close="modal-autotest">Закрыть</button></div>
+    </div>
+  </div>
+
+  <script src="js/data.js"></script>
+  <script src="js/utils.js"></script>
+  <script src="js/app.js"></script>
+  <script src="js/test.js"></script>
+</body>
+</html>
